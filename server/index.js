@@ -28,12 +28,12 @@ class CRUDServer {
   }
   initMiddlewares() {
     this.server.use(express.json());
+    this.server.use(cors());
     this.server.use(
-      cors({
-        origin: 'http//localhost:3000',
+      morgan('combined', {
+        stream: accessLogStream,
       }),
     );
-    this.server.use(morgan('combined', { stream: accessLogStream }));
   }
   initRoutes() {
     this.server.use('/api/contacts', contactRouters);

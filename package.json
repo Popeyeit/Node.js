@@ -15,8 +15,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "node /Users/Euge/Documents/NodeJS/Node-lessons.js/api/index.js",
-    "dev": "nodemon /Users/Euge/Documents/NodeJS/Node-lessons.js/api/index.js"
+    "start": "node ./server/index.js",
+    "dev": "nodemon ./server/index.js"
   },
   "repository": {
     "type": "git",
