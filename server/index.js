@@ -21,6 +21,7 @@ class CRUDServer {
     this.initServer();
     this.initMiddlewares();
     this.initRoutes();
+    this.initErrorHandling();
     this.startListening();
   }
   initServer() {
@@ -34,6 +35,13 @@ class CRUDServer {
         stream: accessLogStream,
       }),
     );
+  }
+  initErrorHandling() {
+    this.server.use((err, req, res, next) => {
+      const message = 'Oooops something went wrong. Try again later.';
+      err.message = message;
+      res.status(500).send(err);
+    });
   }
   initRoutes() {
     this.server.use('/api/contacts', contactRouters);
