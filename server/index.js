@@ -1,5 +1,6 @@
 const morgan = require('morgan');
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
@@ -17,9 +18,10 @@ class CRUDServer {
   constructor() {
     this.server = null;
   }
-  start() {
+  async start() {
     this.initServer();
     this.initMiddlewares();
+    await this.initDbConnection();
     this.initRoutes();
     this.initErrorHandling();
     this.startListening();
@@ -35,6 +37,20 @@ class CRUDServer {
         stream: accessLogStream,
       }),
     );
+  }
+  async initDbConnection() {
+    try {
+      mongoose.set('useCreateIndex', true);
+      await mongoose.connect(process.env.DB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: true,
+      });
+      console.log('Database connection successful');
+    } catch (error) {
+      console.log(error);
+      process.exit(1);
+    }
   }
   initErrorHandling() {
     this.server.use((err, req, res, next) => {

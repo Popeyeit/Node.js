@@ -1,11 +1,12 @@
-const invokeAction = require('../models/contactModel');
+const ContactModel = require('../models/contactModel');
 
 async function createContact(req, res, next) {
   try {
-    const result = await invokeAction({
-      action: 'add',
-      ...req.body,
-    });
+    const uniqueEmail = await ContactModel.findOne({ email: req.body.email });
+    if (uniqueEmail) {
+      return res.status(409).json('Contact with such email already exists');
+    }
+    const result = await ContactModel.create(req.body);
     if (result) {
       res.status(201).json(result);
     }
@@ -17,9 +18,7 @@ async function createContact(req, res, next) {
 
 async function getContacts(req, res, next) {
   try {
-    const result = await invokeAction({
-      action: 'list',
-    });
+    const result = await ContactModel.find();
     res.status(200).json(result);
   } catch (error) {
     delete error.stack;
@@ -30,10 +29,7 @@ async function getContacts(req, res, next) {
 async function getContactById(req, res, next) {
   try {
     const { contactId } = req.params;
-    const result = await invokeAction({
-      action: 'get',
-      id: contactId,
-    });
+    const result = await ContactModel.findById(contactId);
     if (!result) {
       return res.status(404).json({
         message: 'Not found',
@@ -56,10 +52,8 @@ async function changeContact(req, res, next) {
       });
       return;
     }
-    const result = await invokeAction({
-      action: 'change',
-      id: contactId,
-      body: req.body,
+    const result = await ContactModel.findByIdAndUpdate(contactId, req.body, {
+      new: true,
     });
 
     if (result !== -1) {
@@ -79,10 +73,7 @@ async function changeContact(req, res, next) {
 async function deleteContact(req, res, next) {
   try {
     const { contactId } = req.params;
-    const result = await invokeAction({
-      action: 'remove',
-      id: contactId,
-    });
+    const result = await ContactModel.findByIdAndDelete(contactId);
 
     if (result >= 0) {
       res.status(200).json({
