@@ -2,7 +2,9 @@ const ContactModel = require('../models/contactModel');
 
 async function createContact(req, res, next) {
   try {
-    const uniqueEmail = await ContactModel.findOne({ email: req.body.email });
+    const uniqueEmail = await ContactModel.findOne({
+      email: req.body.email
+    });
     if (uniqueEmail) {
       return res.status(409).json('Contact with such email already exists');
     }
@@ -18,7 +20,39 @@ async function createContact(req, res, next) {
 
 async function getContacts(req, res, next) {
   try {
-    const result = await ContactModel.find();
+    const {
+      page,
+      limit,
+      sub
+    } = req.query
+    console.log(req.query);
+    const options = {
+      page,
+      limit
+    };
+    let result = null
+    if (page && limit) {
+      console.log('test1');
+
+      result = await ContactModel.paginate({}, options);
+    }
+    if (!page && !limit && !sub) {
+      console.log('test2');
+
+      result = await ContactModel.find()
+
+
+    }
+    if (sub) {
+      console.log('test3');
+
+      result = await ContactModel.find({
+        subscription: sub
+      })
+      console.log(result);
+    }
+
+
     res.status(200).json(result);
   } catch (error) {
     delete error.stack;
@@ -28,7 +62,9 @@ async function getContacts(req, res, next) {
 
 async function getContactById(req, res, next) {
   try {
-    const { contactId } = req.params;
+    const {
+      contactId
+    } = req.params;
     const result = await ContactModel.findById(contactId);
     if (!result) {
       return res.status(404).json({
@@ -45,7 +81,9 @@ async function getContactById(req, res, next) {
 
 async function changeContact(req, res, next) {
   try {
-    const { contactId } = req.params;
+    const {
+      contactId
+    } = req.params;
     if (!Object.keys(req.body).length) {
       res.status(400).json({
         message: 'missing fields',
@@ -72,7 +110,9 @@ async function changeContact(req, res, next) {
 
 async function deleteContact(req, res, next) {
   try {
-    const { contactId } = req.params;
+    const {
+      contactId
+    } = req.params;
     const result = await ContactModel.findByIdAndDelete(contactId);
 
     if (result >= 0) {
