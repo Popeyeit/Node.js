@@ -8,9 +8,10 @@ require('dotenv').config({
   path: path.join(__dirname, '../.env'),
 });
 const contactRouters = require('./routes/contactRouter');
-const userRouter = require('./routes/userRouter')
+const userRouter = require('./routes/userRouter');
 const accessLogStream = fs.createWriteStream(
-  path.join(__dirname, 'access.log'), {
+  path.join(__dirname, 'access.log'),
+  {
     flags: 'a',
   },
 );
@@ -37,6 +38,7 @@ class CRUDServer {
         stream: accessLogStream,
       }),
     );
+    this.server.use(express.static('public'));
   }
   async initDbConnection() {
     try {
@@ -61,7 +63,7 @@ class CRUDServer {
   }
   initRoutes() {
     this.server.use('/api/contacts', contactRouters);
-    this.server.use('/users', userRouter)
+    this.server.use('/users', userRouter);
   }
   startListening() {
     this.server.listen(process.env.PORT, () => {

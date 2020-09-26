@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 
-const {
-  Schema
-} = mongoose;
+const { Schema } = mongoose;
 
 const userSchema = new Schema({
   email: {
@@ -23,6 +21,7 @@ const userSchema = new Schema({
     type: String,
     required: false,
   },
+  avatarURL: String,
 });
 
 const UserModel = mongoose.model('User', userSchema);

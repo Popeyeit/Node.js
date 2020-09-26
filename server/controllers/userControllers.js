@@ -1,6 +1,12 @@
 const userModel = require('../models/userModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const {
+    promises: fsPromises
+} = require('fs');
+const path = require('path');
+const createAvatar = require('../helpers/createAvatar')
+createAvatar()
 const getUserByEmail = async email => {
     return await userModel.findOne({
         email,
@@ -126,22 +132,23 @@ exports.updateSubscription = async (req, res, next) => {
     try {
         const {
             user
-        } = req
+        } = req;
 
-
-        const result = await userModel.findByIdAndUpdate(user._id, {
-            subscription: req.body.subscription
-        }, {
-            new: true
-        })
+        const result = await userModel.findByIdAndUpdate(
+            user._id, {
+                subscription: req.body.subscription,
+            }, {
+                new: true,
+            },
+        );
         console.log(result);
 
         res.status(200).json({
             id: result._id,
             email: result.email,
             subscription: result.subscription,
-        })
+        });
     } catch (error) {
-        next(error)
+        next(error);
     }
-}
+};
