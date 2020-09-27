@@ -5,12 +5,12 @@ const {
 } = require('mongoose');
 const userRouter = express.Router();
 const { handleValidate } = require('../helpers/validate');
-// const {
-//     promises: fsPromises
-// } = require('fs')
+
 const path = require('path');
 var multer = require('multer');
-var upload = multer({ dest: 'uploads/' });
+var upload = multer({
+  dest: 'uploads/',
+});
 const {
   registerUser,
   loginUser,
@@ -38,8 +38,8 @@ userRouter.get('/current', authorize, currentUser);
 userRouter.post('/logout', authorize, logoutUser);
 userRouter.patch(
   '/update-subscription',
-  handleValidate(updateSubscriptionSchema),
   authorize,
+  handleValidate(updateSubscriptionSchema),
   updateSubscription,
 );
 
