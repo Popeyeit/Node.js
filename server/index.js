@@ -32,6 +32,11 @@ class CRUDServer {
   }
   initMiddlewares() {
     this.server.use(express.json());
+    this.server.use(
+      express.urlencoded({
+        extended: true,
+      }),
+    );
     this.server.use(cors());
     this.server.use(
       morgan('combined', {
