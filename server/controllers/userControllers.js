@@ -1,18 +1,14 @@
 const userModel = require('../models/userModel');
 const bcrypt = require('');
 const jwt = require('jsonwebtoken');
-const {
-  promises: fsPromises
-} = require('fs');
+const { promises: fsPromises } = require('fs');
 const path = require('path');
 const Jimp = require('jimp');
 const createAvatar = require('../helpers/createAvatar');
 
 exports.compressImg = async (req, res, next) => {
   try {
-    const {
-      file
-    } = req;
+    const { file } = req;
     if (!file) {
       const regFile = await createAvatar();
       req.regFile = regFile;
@@ -76,10 +72,7 @@ exports.authorize = async (req, res, next) => {
 
 exports.registerUser = async (req, res, next) => {
   try {
-    const {
-      email,
-      password
-    } = req.body;
+    const { email, password } = req.body;
     const hashPassword = await bcrypt.hash(
       password,
       Number(process.env.BCRYPT_SALT),
@@ -102,10 +95,7 @@ exports.registerUser = async (req, res, next) => {
 };
 
 exports.loginUser = async (req, res, next) => {
-  const {
-    email,
-    password
-  } = req.body;
+  const { email, password } = req.body;
   const user = await getUserByEmail(email);
   if (!user) {
     return res.status(401).json('Email or password is wrong');
@@ -114,7 +104,8 @@ exports.loginUser = async (req, res, next) => {
   if (!isPasswordCorrect) {
     return res.status(401).json('Email or password is wrong');
   }
-  const token = await jwt.sign({
+  const token = await jwt.sign(
+    {
       uid: user._id,
     },
     process.env.JWT_SECRET,
@@ -130,10 +121,7 @@ exports.loginUser = async (req, res, next) => {
 };
 exports.currentUser = async (req, res, next) => {
   try {
-    const {
-      token,
-      user
-    } = req;
+    const { token, user } = req;
     res.status(200).json({
       id: user._id,
       email: user.email,
@@ -145,10 +133,7 @@ exports.currentUser = async (req, res, next) => {
 };
 exports.logoutUser = async (req, res, next) => {
   try {
-    const {
-      user,
-      token
-    } = req;
+    const { user, token } = req;
     await updateUserToken(user._id, null);
     res.status(204).send();
   } catch (error) {
@@ -157,14 +142,14 @@ exports.logoutUser = async (req, res, next) => {
 };
 exports.updateSubscription = async (req, res, next) => {
   try {
-    const {
-      user
-    } = req;
+    const { user } = req;
 
     const result = await userModel.findByIdAndUpdate(
-      user._id, {
+      user._id,
+      {
         subscription: req.body.subscription,
-      }, {
+      },
+      {
         new: true,
       },
     );
@@ -182,16 +167,14 @@ exports.updateSubscription = async (req, res, next) => {
 
 exports.updateAvatar = async (req, res, next) => {
   try {
-    const {
-      user
-    } = req;
-    const {
-      file
-    } = req;
+    const { user } = req;
+    const { file } = req;
     const result = await userModel.findByIdAndUpdate(
-      user._id, {
+      user._id,
+      {
         avatarURL: req.avatarURL,
-      }, {
+      },
+      {
         new: true,
       },
     );
@@ -214,14 +197,8 @@ exports.updateAvatar = async (req, res, next) => {
 
 exports.checkUniqueEmail = async (req, res, next) => {
   try {
-    const {
-      email,
-      password
-    } = req.body;
-    const {
-      file,
-      regFile
-    } = req;
+    const { email, password } = req.body;
+    const { file, regFile } = req;
 
     const existingUser = await getUserByEmail(email);
     console.log(existingUser);

@@ -60,8 +60,8 @@ userRouter.get('/current', authorize, currentUser);
 userRouter.post('/logout', authorize, logoutUser);
 userRouter.patch(
   '/update-subscription',
-  handleValidate(updateSubscriptionSchema),
   authorize,
+  handleValidate(updateSubscriptionSchema),
   updateSubscription,
 );
 userRouter.patch(
