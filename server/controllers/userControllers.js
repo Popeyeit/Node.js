@@ -1,5 +1,5 @@
 const userModel = require('../models/userModel');
-const bcrypt = require('');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { promises: fsPromises } = require('fs');
 const path = require('path');
@@ -28,19 +28,8 @@ exports.compressImg = async (req, res, next) => {
     req.avatarURL = `http://localhost:3000/images/${file.filename}`;
     next();
   } catch (error) {
-    nest(error);
+    next(error);
   }
-};
-
-const getUserByEmail = async email => {
-  return await userModel.findOne({
-    email,
-  });
-};
-const updateUserToken = async (id, newToken) => {
-  return await userModel.findByIdAndUpdate(id, {
-    token: newToken,
-  });
 };
 
 exports.authorize = async (req, res, next) => {
@@ -96,7 +85,7 @@ exports.registerUser = async (req, res, next) => {
 
 exports.loginUser = async (req, res, next) => {
   const { email, password } = req.body;
-  const user = await getUserByEmail(email);
+  const user = await userModel.getUserByEmail(email);
   if (!user) {
     return res.status(401).json('Email or password is wrong');
   }
@@ -110,7 +99,7 @@ exports.loginUser = async (req, res, next) => {
     },
     process.env.JWT_SECRET,
   );
-  await updateUserToken(user._id, token);
+  await userModel.updateUserToken(user._id, token);
 
   res.status(200).json({
     token,
@@ -134,7 +123,7 @@ exports.currentUser = async (req, res, next) => {
 exports.logoutUser = async (req, res, next) => {
   try {
     const { user, token } = req;
-    await updateUserToken(user._id, null);
+    await userModel.updateUserToken(user._id, null);
     res.status(204).send();
   } catch (error) {
     next(error);
@@ -153,7 +142,6 @@ exports.updateSubscription = async (req, res, next) => {
         new: true,
       },
     );
-    console.log(result);
 
     res.status(200).json({
       id: result._id,
@@ -182,7 +170,6 @@ exports.updateAvatar = async (req, res, next) => {
       const fileName = path.parse(user.avatarURL).base;
       await fsPromises.unlink(`public/images/${fileName}`);
     }
-    console.log(result);
 
     res.status(200).json({
       id: result._id,
@@ -200,8 +187,7 @@ exports.checkUniqueEmail = async (req, res, next) => {
     const { email, password } = req.body;
     const { file, regFile } = req;
 
-    const existingUser = await getUserByEmail(email);
-    console.log(existingUser);
+    const existingUser = await userModel.getUserByEmail(email);
 
     if (existingUser) {
       if (file) {

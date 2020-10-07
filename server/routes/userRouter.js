@@ -1,11 +1,6 @@
 const express = require('express');
-const Joi = require('joi');
-const {
-  Types: { ObjectId },
-} = require('mongoose');
 const userRouter = express.Router();
 const { handleValidate } = require('../helpers/validate');
-
 const path = require('path');
 const multer = require('multer');
 const storage = multer.diskStorage({
@@ -18,7 +13,6 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
 });
-
 const {
   registerUser,
   loginUser,
@@ -30,23 +24,12 @@ const {
   checkUniqueEmail,
   updateAvatar,
 } = require('../controllers/userControllers');
-const registerSchema = Joi.object({
-  email: Joi.string().required(),
-  password: Joi.string().required(),
-  subscription: Joi.string().allow('pro', 'free', 'premium').only(),
-});
-const loginSchema = Joi.object({
-  email: Joi.string().required(),
-  password: Joi.string().required(),
-});
-const updateSubscriptionSchema = Joi.object({
-  subscription: Joi.string().allow('pro', 'free', 'premium').only(),
-});
-const updateAvatarSchema = Joi.object({
-  avatar: Joi.binary().encoding('base64'),
-  allow: 'multipart/form-data',
-});
-
+const {
+  registerSchema,
+  loginSchema,
+  updateSubscriptionSchema,
+  updateAvatarSchema,
+} = require('../Schemes/userSchemes');
 userRouter.post(
   '/register',
   upload.single('avatar'),
