@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "@sendgrid/mail": "^7.2.6",
     "avatar-builder": "^1.0.1",
     "avatar-generator": "^2.0.4",
     "bcrypt": "^5.0.0",
@@ -22,7 +23,8 @@
     "network-avatar-picker": "^1.4.0",
     "nodemon": "^2.0.4",
     "random-avatar-generator": "^2.0.0",
-    "uuid": "^8.3.0",
+    "uid": "^1.0.0",
+    "uuid": "^8.3.1",
     "yargs": "^15.4.1"
   },
   "devDependencies": {},

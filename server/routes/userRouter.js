@@ -23,6 +23,7 @@ const {
   compressImg,
   checkUniqueEmail,
   updateAvatar,
+  verifyEmail,
 } = require('../controllers/userControllers');
 const {
   registerSchema,
@@ -38,6 +39,7 @@ userRouter.post(
   checkUniqueEmail,
   registerUser,
 );
+userRouter.get('/verify/:verificationToken', verifyEmail);
 userRouter.post('/login', handleValidate(loginSchema), loginUser);
 userRouter.get('/current', authorize, currentUser);
 userRouter.post('/logout', authorize, logoutUser);

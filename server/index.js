@@ -68,7 +68,7 @@ class CRUDServer {
   }
   initRoutes() {
     this.server.use('/api/contacts', contactRouters);
-    this.server.use('/users', userRouter);
+    this.server.use('/auth', userRouter);
   }
   startListening() {
     this.server.listen(process.env.PORT, () => {

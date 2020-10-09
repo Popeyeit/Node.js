@@ -3,8 +3,20 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { promises: fsPromises } = require('fs');
 const path = require('path');
+const uuid = require('uuid');
 const Jimp = require('jimp');
+const sgMail = require('@sendgrid/mail');
 const createAvatar = require('../helpers/createAvatar');
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+const msg = (email, link) => ({
+  to: `${email}`,
+  from: process.env.EMAIL,
+  subject: 'Sending with SendGrid is Fun',
+  text: 'and easy to do anywhere, even with Node.js',
+  html: `<a href=${link}>link verification</a>`,
+});
 
 exports.compressImg = async (req, res, next) => {
   try {
@@ -58,10 +70,36 @@ exports.authorize = async (req, res, next) => {
     next(err);
   }
 };
+const sendVerification = async (email, verificationToken) => {
+  const verificationLink = `${process.env.BASE_URL}/auth/verify/${verificationToken}`;
+  try {
+    const res = await sgMail.send(msg(email, verificationLink));
+    console.log(res);
+  } catch (error) {
+    console.log(error);
+  }
+};
+exports.verifyEmail = async (req, res, next) => {
+  try {
+    const { verificationToken } = req.params;
 
+    const user = await userModel.findOne({ verificationToken });
+
+    if (!user) {
+      return res.status(404).json('User not found');
+    }
+    await userModel.findByIdAndUpdate(user.id, {
+      verificationToken: '',
+    });
+
+    res.status(200).json('Success');
+  } catch (error) {
+    next(error);
+  }
+};
 exports.registerUser = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { password } = req.body;
     const hashPassword = await bcrypt.hash(
       password,
       Number(process.env.BCRYPT_SALT),
@@ -70,7 +108,10 @@ exports.registerUser = async (req, res, next) => {
       ...req.body,
       password: hashPassword,
       avatarURL: req.avatarURL,
+      verificationToken: uuid.v4(),
     });
+
+    await sendVerification(user.email, user.verificationToken);
 
     res.status(201).json({
       email: user.email,
@@ -89,6 +130,12 @@ exports.loginUser = async (req, res, next) => {
   if (!user) {
     return res.status(401).json('Email or password is wrong');
   }
+  const { verificationToken } = user;
+  if (verificationToken) {
+    return res.status(403).json('Your email is not verified');
+  }
+  console.log(verificationToken);
+
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
   if (!isPasswordCorrect) {
     return res.status(401).json('Email or password is wrong');

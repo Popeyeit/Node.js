@@ -22,6 +22,10 @@ const userSchema = new Schema({
     required: false,
   },
   avatarURL: String,
+  verificationToken: {
+    type: String,
+    required: false,
+  },
 });
 
 userSchema.statics.getUserByEmail = getUserByEmail;
